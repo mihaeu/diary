@@ -1,0 +1,10 @@
+{
+    "require": {
+        "easybook/easybook": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Mihaeu": "src"
+        }
+    }
+}
