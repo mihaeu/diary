@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Mihaeu\Diary\Config;
+use Mihaeu\Diary\Bootstrapper;
+
+if (isset($argv[1])) {
+    $slug = $argv[1];
+
+    // set the default for Easybook
+    $_SERVER['argv'][1] = "publish";
+    $_SERVER['argv'][2] = $slug;
+    $_SERVER['argv'][3] = "print";
+    $_SERVER['argv'][4] = "--dir=./doc";
+} else {
+    throw new \Exception('Please provide the slug for the book you would like to publish.');    
+}
+
+// transform, copy content and create content
+$bootstrapper = new Bootstrapper(new Config($slug));
+$bootstrapper->cleanOldContent();
+$bootstrapper->createNewContent();
+$bootstrapper->createBookConfig();
+
+// live copy the Easybook script to the project root, because of the
+// annoying check for the composer directory in the same folder ...
+$easybookScript = file_get_contents(__DIR__.'/vendor/easybook/easybook/book');
+$easybookScript = str_replace('<?php', '', $easybookScript);
+eval($easybookScript);
