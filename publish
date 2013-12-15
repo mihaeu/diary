@@ -1,22 +1,32 @@
 #!/usr/bin/env php
 <?php
 
+/***********************************************************************
+ * Shortcut tool for publishing diaries with Easybook
+ ***********************************************************************/
+
 require __DIR__.'/vendor/autoload.php';
 
 use Mihaeu\Diary\Config;
 use Mihaeu\Diary\Bootstrapper;
 
-if (isset($argv[1])) {
-    $slug = $argv[1];
-
-    // set the default for Easybook
-    $_SERVER['argv'][1] = "publish";
-    $_SERVER['argv'][2] = $slug;
-    $_SERVER['argv'][3] = "print";
-    $_SERVER['argv'][4] = "--dir=./doc";
-} else {
-    throw new \Exception('Please provide the slug for the book you would like to publish.');    
+if (empty($argv[1]) || $argc !== 2) {
+    print("
+        This script is a shortcut for publishing books via Easyscript.\n\n
+        Usage: ./publish slug\n\n
+        Make sure you changed the Config.sample.php and renamed it to Config.php
+        and create the book using ./easybook new book --dir=./doc\n\n"
+    );
+    exit(1);
 }
+
+$slug = $argv[1];
+
+// set the default for Easybook
+$_SERVER['argv'][1] = "publish";
+$_SERVER['argv'][2] = $slug;
+$_SERVER['argv'][3] = "print";
+$_SERVER['argv'][4] = "--dir=./doc";
 
 // transform, copy content and create content
 $bootstrapper = new Bootstrapper(new Config($slug));

@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+/***********************************************************************
+ * Just forward the command to Easybook
+ ***********************************************************************/
+
+require __DIR__.'/vendor/autoload.php';
+
+// live copy the Easybook script to the project root, because of the
+// annoying check for the composer directory in the same folder ...
+$easybookScript = file_get_contents(__DIR__.'/vendor/easybook/easybook/book');
+$easybookScript = str_replace('<?php', '', $easybookScript);
+eval($easybookScript);
