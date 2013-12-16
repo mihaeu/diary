@@ -126,7 +126,7 @@ class Bootstrapper
             // daily entry
             $datetime = \DateTime::createFromFormat('Y-m-d', $matches[1]);
             $author = isset($matches[2]) ? ' ('.$matches[2].')' : '';
-            $this->entries[$datetime->format('F Y')][$datetime->format('jS F Y')] = [
+            $this->entries[$datetime->format('F Y')][$datetime->format('jS F Y').$author] = [
                 'date'   => $datetime->format('jS F Y'),
                 'file'   => $file,
                 'author' => $author
