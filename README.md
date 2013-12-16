@@ -16,6 +16,9 @@ OK so this was written for myself, but if you still feel like giving it a try:
 git clone https://github.com/mihaeu/diary
 cd diary
 
+# assuming Composer is installed globally, otherwise check http://getcomposer.org
+composer install
+
 # copy the Config sample and adjust
 cp src/Mihaeu/Diary/Config.sample.php src/Mihaeu/Diary/Config.php
 vim src/Mihaeu/Diary/Config.php
@@ -36,7 +39,9 @@ vim src/Mihaeu/Diary/Config.php
 If the result doesn't satisfy you, that's your problem :) have a look at the `Bootstrapper` class
 and make your changes there, but most of the time a `before` or `after` hook in the `Config` class will do.
 
-One of my diaries is written in three different languages for instance, one if which is Persian, which is a right-to-left language with an alphabet similar to Arabic. I use a `before` hook similar to this:
+## Hook Example
+
+One of my diaries is written in three different languages for instance, one if which is Persian, which is a right-to-left language with an alphabet similar to Arabic. I use a `before` hook similar to this to achieve proper display of those entries (I use the original Markdown parser, HTML tags remain unchanged):
 
 ```php
 
