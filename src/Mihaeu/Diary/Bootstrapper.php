@@ -96,39 +96,67 @@ class Bootstrapper
         }
     }
 
+    /**
+     * Transforms entries and copies them to Easybook.
+     * 
+     * @return void
+     */
     public function createNewContent()
     {
         $files = array_diff(scandir($this->config->pathToEntries), ['.', '..']);
         foreach ($files as $file) {
-            $matches = [];
-            if (preg_match('/(\d{4}-\d{2}-\d{2})\.md/', $file, $matches)) {
-                // daily entry
-                $datetime = \DateTime::createFromFormat('Y-m-d', $matches[1]);
-                $this->entries[$datetime->format('F Y')][$datetime->format('jS F Y')] = [
-                    'date' => $datetime->format('jS F Y'),
-                    'file' => $file
-                ];
-
-                foreach ($this->entries as $month => $entries) {
-                    $content = '';
-                    foreach ($entries as $date => $entry) {
-                        $entryContent = file_get_contents($this->config->pathToEntries.DIRECTORY_SEPARATOR.$file);
-                        $content .= "## $date\n\n$entryContent\n\n";
-                    }
-                    $destination = $this->docPath.DIRECTORY_SEPARATOR.'Contents'.DIRECTORY_SEPARATOR.$month.'.md';
-                    file_put_contents($destination, $content);
-                }
-
-                // copy files
-                // $source = $this->config->pathToEntries.DIRECTORY_SEPARATOR.$file;
-                // $destination = $this->docPath.DIRECTORY_SEPARATOR.'Contents'.DIRECTORY_SEPARATOR.$file;
-                // copy($source, $destination);
-            } elseif (preg_match('/(\d{4}-\d{2})\.md/', $file, $matches)) {
-                // monthly chapter
-                $datetime = \DateTime::createFromFormat('Y-m', $matches[1]);
-            } else {
-                printf("Skipping malformed file %s\n", $file);
-            }
+            $this->parseDailyEntry($file);
         }
+
+        foreach ($this->entries as $month => $monthlyEntries) {
+            $this->writeParsedEntriesPerMonth($month, $monthlyEntries);
+        }
+    }
+
+    /**
+     * Parses daily entries and adds them to the entry container.
+     * 
+     * @param  string $file
+     * @return void
+     */
+    public function parseDailyEntry($file)
+    {
+        $matches = [];
+        if (preg_match('/(\d{4}-\d{2}-\d{2})-?([\w\d \-_]+)?\.md/', $file, $matches)) {
+            // daily entry
+            $datetime = \DateTime::createFromFormat('Y-m-d', $matches[1]);
+            $author = isset($matches[2]) ? ' ('.$matches[2].')' : '';
+            $this->entries[$datetime->format('F Y')][$datetime->format('jS F Y')] = [
+                'date'   => $datetime->format('jS F Y'),
+                'file'   => $file,
+                'author' => $author
+            ];
+        } else {
+            printf("Skipping malformed file (expected Y-m-d.md or Y-m-d-author.md) %s\n", $file);
+        }
+    }
+
+    /**
+     * Writes the parsed entries for each month to a single file.
+     * 
+     * @param  string $month
+     * @param  array  $monthlyEntries
+     * @return void
+     */
+    public function writeParsedEntriesPerMonth($month, $monthlyEntries) {
+        $entryContents = [];
+        foreach ($monthlyEntries as $dailyEntry) {
+            $source = $this->config->pathToEntries.DIRECTORY_SEPARATOR.$dailyEntry['file'];
+            $entryContents[] = sprintf(
+                "## %s%s\n\n%s\n\n",
+                $dailyEntry['date'],
+                $dailyEntry['author'],
+                file_get_contents($source)
+            );
+        }
+        
+        $destination = $this->docPath.DIRECTORY_SEPARATOR.'Contents'
+            .DIRECTORY_SEPARATOR.$month.'.md';
+        file_put_contents($destination, implode('', $entryContents));
     }
 }
