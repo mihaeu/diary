@@ -19,6 +19,24 @@ class Config extends AbstractConfig
 
             'pathToDoc'     => '../../../doc',
             'pathToEntries' => 'some/secret/path'
+
+            // executed when Config is initialized, before any other action
+            // receives config as parameter
+            'before'        => 'specialBeforeHook'
+
+            // executed when Config is destructed
+            // receives config as parameter
+            'after'         => 'specialAfterHook'
         ]
     ];
+
+    public static function specialBeforeHook()
+    {
+        // do nothing for now
+    }
+
+    public static function specialAfterHook()
+    {
+        // do nothing for now
+    }
 }
